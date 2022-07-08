@@ -9,12 +9,13 @@ jobs:
     runs-on: self-hosted
     steps:
       - uses: actions/checkout@master
+      - uses: FranzDiebold/github-env-vars-action@v2
       - name: Kaniko build
         uses: aevea/action-kaniko@master
         with:
           registry: ghcr.io
           password: ${{ secrets.GITHUB_TOKEN }}
-          image: ${{ github.repository }}
+          image: $CI_REPOSITORY_NAME
           cache: true
           cache_registry: cache
           strip_tag_prefix: v
