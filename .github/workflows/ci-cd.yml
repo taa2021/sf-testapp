@@ -42,3 +42,36 @@ jobs:
             echo "Install version/tag - $(grep tag kubett/values.yaml)"
             # helm install/upgrade
             KUBECONFIG=./kubett/kubeconfig  helm upgrade --install --wait --timeout 300 testapp ./charts/app -f ./kubett/values.yaml  --namespace app0
+
+      - name: Template configs
+        run: |
+            cat > _atransform.yaml <<EOF
+            ---
+            - hosts: localhost
+              gather_facts: no
+              tasks:
+                - local_action: template src="{{ item }}.j2" dest="{{ item }}" mode="0600"
+                  with_items:
+                  - values.yaml
+                  - kubeconfig
+            EOF
+            cat > kubeconfig.j2 <<EOF
+            {{ lookup('env','KUBECONFIG_FILE_DATA') | b64decode }}
+            EOF
+
+            cat > values.yaml.j2 <<EOF
+            image:
+              tag: {{ lookup('env','APP_TAG') | regex_replace('^v','') | regex_search('^\d+\.\d+\.\d+$') |  default('latest', true) }}
+              pullPolicy: Always
+
+            service:
+              type: NodePort
+              nodePort: {{ lookup('env','APP_INNER_PORT') }}
+
+            DB:
+              host:     "{{ lookup('env','DB_HOST') }}"
+              name:     "{{ lookup('env','DB_NAME') }}"
+              user:     "{{ lookup('env','DB_USER') }}"
+              password: "{{ lookup('env','DB_PASSWORD') }}"
+            EOF
+            ls -lR *.j2
