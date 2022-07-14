@@ -76,3 +76,13 @@ jobs:
             echo "Install version/tag - $(grep tag values.yaml)"
             # helm install/upgrade
             KUBECONFIG=./kubeconfig  helm upgrade --install --wait --timeout 300s testapp ./charts/app --namespace app0 -f values.yaml
+
+      - name: Send job status to telegram
+        uses: appleboy/telegram-action@master
+        with:
+          to: ${{ secrets.TELEGRAM_TO }}
+          token: ${{ secrets.TELEGRAM_TOKEN }}
+          message: |
+            ### github.repository - ${{env.CI_REF_NAME}}
+
+            **${{ runner.name }}** status: **${{ job.status }}**
