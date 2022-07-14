@@ -12,6 +12,10 @@ jobs:
       - uses: actions/checkout@master
       - uses: FranzDiebold/github-env-vars-action@v2
       - uses: actions/setup-python@v4
+      - run: |
+            # prepare
+            python -m pip install --upgrade pip
+            pip install ansible
       - uses: hiberbee/github-action-helm@1.13.0
       - name: Kaniko build docker image
         uses: aevea/action-kaniko@master
@@ -27,16 +31,13 @@ jobs:
           KUBECONFIG_FILE_DATA: '${{secrets.KUBECONFIG_FILE_DATA}}'
           APP_TAG: '${{env.CI_REF_NAME}}'
           DB_HOST: '${{secrets.DB_HOST}}'
-          DB_NAME: '${{ secrets.DB_NAME}}'
+          DB_NAME: '${{secrets.DB_NAME}}'
           DB_USER: '${{secrets.DB_USER}}'
           DB_PASSWORD: '${{secrets.DB_PASSWORD}}'
         run: |
-            # prepare
-            python -m pip install --upgrade pip
-            pip install ansible
             # render configs
             ANSIBLE_LOCALHOST_WARNING=false ansible-playbook kubett/_atransform.yaml
             # check version
-            grep tag kubett/values.yaml
+            echo "Install version/tag - $(grep tag kubett/values.yaml)"
             # helm install/upgrade
             KUBECONFIG=./kubett/kubeconfig  helm upgrade --install testapp ./charts/app -f ./kubett/values.yaml  --namespace app0

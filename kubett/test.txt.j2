@@ -1,2 +1,0 @@
-tag: {{ lookup('env','APP_TAG') | regex_replace('^v','') | regex_search('^\d+\.\d+\.\d+$') |  default('latest') }}
-nodePort: {{ lookup('env','APP_INNER_PORT') }}
