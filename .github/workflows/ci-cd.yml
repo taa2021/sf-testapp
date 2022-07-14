@@ -75,4 +75,4 @@ jobs:
             # check version
             echo "Install version/tag - $(grep tag values.yaml)"
             # helm install/upgrade
-            KUBECONFIG=./kubett/kubeconfig  helm upgrade --install --wait --timeout 300s testapp ./charts/app --namespace app0 -f values.yaml
+            KUBECONFIG=./kubeconfig  helm upgrade --install --wait --timeout 300s testapp ./charts/app --namespace app0 -f values.yaml
