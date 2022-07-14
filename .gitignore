@@ -1,3 +1,7 @@
+kubett/kubeconfig
+kubett/test.txt
+kubett/values.yaml
+
 # Local .terraform directories
 **/.terraform/*
 
