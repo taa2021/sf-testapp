@@ -82,7 +82,8 @@ jobs:
         with:
           to: ${{ secrets.TELEGRAM_TO }}
           token: ${{ secrets.TELEGRAM_TOKEN }}
+          format: markdown
           message: |
-            ### github.repository - ${{env.CI_REF_NAME}}
+            ### ${{github.repository}} - ${{env.CI_REF_NAME}}
 
-            **${{ runner.name }}** status: **${{ job.status }}**
+            **${{ github.job }}** status: **${{ job.status }}**
