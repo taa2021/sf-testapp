@@ -21,9 +21,7 @@ jobs:
           cache: true
           cache_registry: cache
           strip_tag_prefix: v
-      - uses: tomasnorre/ansible-cli-action@latest
-        with:
-          command: "ANSIBLE_LOCALHOST_WARNING=false ansible-playbook kubett/transform.yaml; cat kubett/test.txt"
+      - run: "ANSIBLE_LOCALHOST_WARNING=false ansible-playbook kubett/transform.yaml; cat kubett/test.txt"
         env:
           KUBECONFIG_FILE_DATA: ${{ secrets.KUBECONFIG_FILE_DATA }}
           APP_TAG: ${{ env.CI_REF_NAME }}
