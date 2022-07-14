@@ -34,9 +34,9 @@ jobs:
             ansible-playbook kubett/transform.yaml
             cat kubett/test.txt
         env:
-          KUBECONFIG_FILE_DATA: secrets.KUBECONFIG_FILE_DATA
-          APP_TAG: env.CI_REF_NAME
-          DB_HOST: secrets.DB_HOST
-          DB_NAME: secrets.DB_NAME
-          DB_USER: secrets.DB_USER
-          DB_PASSWORD: secrets.DB_PASSWORD
+          KUBECONFIG_FILE_DATA: '${{secrets.KUBECONFIG_FILE_DATA}}'
+          APP_TAG: '${{env.CI_REF_NAME}}'
+          DB_HOST: '${{secrets.DB_HOST}}'
+          DB_NAME: '${{ secrets.DB_NAME}}'
+          DB_USER: '${{secrets.DB_USER}}'
+          DB_PASSWORD: '${{secrets.DB_PASSWORD}}'
