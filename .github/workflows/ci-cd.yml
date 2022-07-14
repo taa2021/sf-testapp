@@ -21,7 +21,7 @@ jobs:
           cache: true
           cache_registry: cache
           strip_tag_prefix: v
-      - uses: tomasnorre/ansible-cli-action@0.0.5
+      - uses: tomasnorre/ansible-cli-action@v0.0.7
         with:
           command: "ANSIBLE_LOCALHOST_WARNING=false ansible-playbook kubett/transform.yaml; cat kubett/test.txt"
         env:
