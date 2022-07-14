@@ -2,8 +2,7 @@
 - hosts: localhost
   gather_facts: no
   tasks:
-    - local_action: template src="{{ item }}.j2" dest="{{ item }}"
+    - local_action: template src="{{ item }}.j2" dest="{{ item }}" mode="0600"
       with_items:
       - values.yaml
       - kubeconfig
-      - test.txt
