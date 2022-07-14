@@ -8,6 +8,7 @@ on:
 jobs:
   docker:
     runs-on: self-hosted
+    environment: CI
     steps:
       - uses: actions/checkout@master
       - uses: FranzDiebold/github-env-vars-action@v2
@@ -20,3 +21,13 @@ jobs:
           cache: true
           cache_registry: cache
           strip_tag_prefix: v
+      - uses: tomasnorre/ansible-cli-action@0.0.5
+        with:
+          command: "ANSIBLE_LOCALHOST_WARNING=false ansible-playbook kubett/transform.yaml; cat kubett/test.txt"
+        env:
+          KUBECONFIG_FILE_DATA: ${{ secrets.KUBECONFIG_FILE_DATA }}
+          APP_TAG: ${{ env.CI_REF_NAME }}
+          DB_HOST: ${{ secrets.DB_HOST }}
+          DB_NAME: ${{ secrets.DB_NAME }}
+          DB_USER: ${{ secrets.DB_USER }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
