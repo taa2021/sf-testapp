@@ -13,6 +13,7 @@ jobs:
       - uses: actions/checkout@master
       - uses: FranzDiebold/github-env-vars-action@v2
       - uses: actions/setup-python@v4
+
       - run: |
             # prepare
             python -m pip install --upgrade pip
@@ -27,25 +28,10 @@ jobs:
           cache: true
           cache_registry: cache
           strip_tag_prefix: v
-      - name: Helm deploy app
-        env:
-          KUBECONFIG_FILE_DATA: '${{secrets.KUBECONFIG_FILE_DATA}}'
-          APP_TAG: '${{env.CI_REF_NAME}}'
-          DB_HOST: '${{secrets.DB_HOST}}'
-          DB_NAME: '${{secrets.DB_NAME}}'
-          DB_USER: '${{secrets.DB_USER}}'
-          DB_PASSWORD: '${{secrets.DB_PASSWORD}}'
-        run: |
-            # render configs
-            ANSIBLE_LOCALHOST_WARNING=false ansible-playbook kubett/_atransform.yaml
-            # check version
-            echo "Install version/tag - $(grep tag kubett/values.yaml)"
-            # helm install/upgrade
-            KUBECONFIG=./kubett/kubeconfig  helm upgrade --install --wait --timeout 300 testapp ./charts/app -f ./kubett/values.yaml  --namespace app0
 
-      - name: Template configs
+      - name: Template helm configs
         run: |
-            cat > _atransform.yaml <<EOF
+            cat > _atransform.yaml <<'EOF'
             ---
             - hosts: localhost
               gather_facts: no
@@ -55,11 +41,11 @@ jobs:
                   - values.yaml
                   - kubeconfig
             EOF
-            cat > kubeconfig.j2 <<EOF
+            cat > kubeconfig.j2 <<'EOF'
             {{ lookup('env','KUBECONFIG_FILE_DATA') | b64decode }}
             EOF
 
-            cat > values.yaml.j2 <<EOF
+            cat > values.yaml.j2 <<'EOF'
             image:
               tag: {{ lookup('env','APP_TAG') | regex_replace('^v','') | regex_search('^\d+\.\d+\.\d+$') |  default('latest', true) }}
               pullPolicy: Always
@@ -74,4 +60,19 @@ jobs:
               user:     "{{ lookup('env','DB_USER') }}"
               password: "{{ lookup('env','DB_PASSWORD') }}"
             EOF
-            ls -lR *.j2
+
+      - name: Helm deploy app
+        env:
+          KUBECONFIG_FILE_DATA: '${{secrets.KUBECONFIG_FILE_DATA}}'
+          APP_TAG: '${{env.CI_REF_NAME}}'
+          DB_HOST: '${{secrets.DB_HOST}}'
+          DB_NAME: '${{secrets.DB_NAME}}'
+          DB_USER: '${{secrets.DB_USER}}'
+          DB_PASSWORD: '${{secrets.DB_PASSWORD}}'
+        run: |
+            # render configs
+            ANSIBLE_LOCALHOST_WARNING=false ansible-playbook _atransform.yaml
+            # check version
+            echo "Install version/tag - $(grep tag values.yaml)"
+            # helm install/upgrade
+            KUBECONFIG=./kubett/kubeconfig  helm upgrade --install --wait --timeout 300s testapp ./charts/app --namespace app0 -f values.yaml
